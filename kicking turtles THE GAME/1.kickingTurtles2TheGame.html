@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>canvas practice</title>
+<!-- <meta name="viewport" content="width=device-width, initial-scale=1.0"/> -->
+</head>
+<style>
+  canvas{
+    background-image: url('paper.png');
+    background-color:white;
+    border-color:black;
+    border: 1px solid;
+  }
+  </style>
+<body onload="startgame()">
+  <script>
+  var GamePiece;
+  function startgame(){
+    stage.start();
+      GamePiece= new component(70,70,"walkingDoodleCreepRight.gif", 70,100,"image");
+      // GamePiece= new component(70,70,"red",70,100);
+      block= new component(60,60,"therealturtule.jpg", 900,440,"image");
+      block2= new component(60,60,"therealturtule.jpg", 1800,440,"image");
+      block3= new component(60,60,"therealturtule.jpg", 2800,440,"image");
+      heart1= new component(30,30,"heart.jpg", 900,0,"image");
+      heart2= new component(30,30,"heart.jpg", 850,0,"image");
+      heart3= new component(30,30,"heart.jpg", 800,0,"image");
+      life= new component(60,40,"LivesRemaining.jpg", 720,0,"image");
+      talkingeye = new component(50, 50, "flyingeye.gif", 440,1200,"image");
+      talk=new component("30px","cursive ","black", 280, 40,"text");
+      boss = new component(400, 400, "bigboi.jpg",800,700,"image");
+      bossObst = new component(20, 20, "therealturtule.jpg",350,600,"image");
+      platform1 = new component(1000,500, "cele.gif",10000,10000,"image");
+      alert1 = new component(100, 100, "alert1.jpg",50,-950,"image");
+      alert2 = new component(100,100, "alert2.jpg",400,-940,"image");
+      alert3 = new component(100,100, "alert3.jpg",600,-999,"image");
+      newchal=new component("30px","cursive ","black", 0, 0,"text");
+  }
+  // //e
+  // 350,300,
+  var stage = {
+    canvas :document.createElement("canvas"),
+    //creates canvas-- also uses the start function as declared above to generate this
+    start : function(){
+      this.canvas.width=1000;
+      this.canvas.height=500;
+      //sets everything
+      this.context=this.canvas.getContext("2d");
+      //2d rendering space
+      document.body.insertBefore(this.canvas, document.body.childNodes[0]);
+      //sets it as the first thing on the page
+      this.interval=setInterval(stageUpdate,20);
+      //updates every 20 miliseconds
+      window.addEventListener('keydown',function(e){
+        //keys up or down
+        stage.key=e.keyCode;
+      })
+      window.addEventListener('keyup',function(e){
+        stage.key=false;
+      })
+    },
+    clear : function(){
+        this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+      }
+    }
+    function component(width, height, color, x, y, type) {
+          this.type=type;
+            if (type == "image") {
+                this.image = new Image();
+                this.image.src = color;
+                }
+              this.gamearea = stage;
+              this.width = width;
+              this.height = height;
+              this.speedX = 0;
+              this.speedY = 0;
+              this.gravity = 5;
+              this.gravitySpeed=0;
+              this.x = x;
+              this.y = y;
+              this.update = function() {
+                ctx = stage.context;
+                if(type=="image"){
+                  ctx.drawImage(this.image,
+                    this.x,
+                    this.y,
+                    this.width, this.height);
+                }
+                else if(type=="text"){
+                    ctx.font = this.width + " " + this.height;
+                    ctx.fillStyle = color;
+                    ctx.fillText(this.text, this.x, this.y);
+                  }
+                else{
+                  ctx.fillStyle = color;
+                  ctx.fillRect(this.x, this.y, this.width, this.height);
+            }
+          }
+          this.newPos = function() {
+              this.gravitySpeed = this.gravity;
+              this.x += this.speedX;
+              this.y += this.speedY+this.gravitySpeed;
+              this.ground();
+        }
+        this.ground = function(){
+          var theground= stage.canvas.height-this.height;
+          if(this.y>theground+1){
+            this.y=theground-1;
+          }
+        }
+     this.crash = function(otherthing){
+       var pieceright =this.x+(this.width);
+       var pieceleft =this.x;
+       var piecetop = this.y;
+       var piecebot = this.y+(this.height);
+       var otherright = otherthing.x+(otherthing.width);
+       var otherleft =otherthing.x;
+       var othertop = otherthing.y;
+       var crash=true;
+       var otherbottom = otherthing.y+(otherthing.height);
+       if ((piecebot < othertop) || (piecetop > otherbottom) || (pieceright < otherleft) || (pieceleft > otherright)) {
+           crash = false;
+         }
+      else{
+
+           return crash;
+         }
+
+     }
+      }
+    function walkADirection(){
+      //key for the keys (puns)
+      //39-- right
+      //37--left
+      //38--up
+      if (stage.key==39){
+        GamePiece.x+=4;
+        GamePiece.image.src="walkingDoodleCreepRight.gif";
+      }
+    if (stage.key==37){
+      GamePiece.x-=4;
+      GamePiece.image.src="doodleLeft.gif";
+    }
+    if (stage.key==38){
+      GamePiece.y=GamePiece.y-4;
+      GamePiece.y-=10;
+    }
+  }
+   function losinglives(){
+      if(heart1.x==900 ){
+        heart1.x=-30;
+      }
+      else if(heart2.x==850){
+        heart2.x=-30;
+      }
+      else if(heart3.x==800){
+        heart3.x=-30;
+      }
+    }
+    function wait(ms){
+      var d = new Date();
+      var d2 = null;
+      do{ d2= new Date();}
+      while(d2-d<ms)
+    }
+    function bouncingturtles(){
+      if(block.y<=440&&block.y>=435){
+        block.y-=.5;
+       }
+       else{
+         block.y+=5;
+       }
+        if(block3.y<=440&&block3.y>=435){
+          block3.y-=.5;
+         }
+         else{
+           block3.y+=5;
+         }
+         if(block2.y<=440&&block2.y>=435){
+           block2.y-=.5;
+          }
+          else{
+            block2.y+=5;
+          }
+    }
+    function turtletime(){
+    if (block.x-GamePiece.x<100){
+      if(stage.key && stage.key==40){
+        hitTheREset=block.x+200;
+        block.speedX=block.speedX*.25;
+        block.x+=250;
+        turtleTimeCounter++;
+      }
+      else{
+      block.image.src="angryturtle.jpg";
+    }
+    }
+    if(turtleTimeCounter>0){
+        block.image.src="turtlehit.jpg";
+        if(block.y<=440&&block.y>=425){
+          block.y-=10;
+         }
+         else{
+           block.y+=10;
+         }
+
+    }
+    if(block.x==hitTheREset){
+      turtleTimeCounter-=1;
+      block.image.src="therealturtule.jpg";
+    }
+    }
+    function turtletime2(){
+      if (block2.x-GamePiece.x<100){
+        if(stage.key && stage.key==40){
+          hitTheREset2=block2.x+200;
+          block2.speedX=block2.speedX*.25;
+          block2.x+=250;
+          turtle2TimeCounter++;
+        }
+        else{
+        block2.image.src="angryturtle.jpg";
+      }
+      }
+      if(turtle2TimeCounter>0){
+          block2.image.src="turtlehit.jpg";
+          if(block2.y<=440&&block2.y>=425){
+            block2.y-=10;
+           }
+           else{
+             block2.y+=10;
+           }
+
+      }
+      if(block2.x==hitTheREset2){
+        turtle2TimeCounter-=1;
+        block2.image.src="therealturtule.jpg";
+      }
+      }
+      function turtletime3(){
+if (block3.x-GamePiece.x<100){
+  if(stage.key && stage.key==40){
+    hitTheREset3=block3.x+200;
+    block3.speedX=block3.speedX*.25;
+    block3.x+=250;
+    turtle3TimeCounter++;
+  }
+  else{
+  block3.image.src="angryturtle.jpg";
+}
+}
+if(turtle3TimeCounter>0){
+    block3.image.src="turtlehit.jpg";
+    if(block3.y<=440&&block3.y>=425){
+      block3.y-=10;
+     }
+     else{
+       block3.y+=10;
+     }
+
+}
+if(block3.x==hitTheREset3){
+  turtle3TimeCounter-=1;
+  block3.image.src="therealturtule.jpg";
+}
+}
+function moveDownAbstraction(){
+  alert1.y+=1000;
+  alert2.y+=1000;
+  alert3.y+=1000;
+
+}
+function updatePieces(){
+  GamePiece.update();
+  block.update();
+  heart1.update();
+  heart2.update();
+  heart3.update();
+  life.update();
+  block2.update();
+  block3.update();
+  talkingeye.update();
+  talk.update();
+  boss.update();
+  bossObst.update();
+  platform1.update();
+  alert1.update();
+  alert2.update();
+  alert3.update();
+  newchal.update();
+}
+        var cancelthis=true;
+        var goingtogo=false;
+        var turtleTimeCounter=0;
+        var turtle2TimeCounter=0;
+        var turtle3TimeCounter=0;
+        var hitTheREset2=0;
+        var hitTheREset3=0;
+        var dist=true;
+        var dist2=true;
+        var dist3=true;
+        var hitTheREset=0;
+        var cancelthis2=true;
+        var counter = 0;
+        var flyyee=true;
+        var bossBegin=false;
+        var finalboo=true;
+        var newcounter=0;
+        var stupidalg=true;
+        var onelastboo=true;
+        var oneinteration=true;
+  function stageUpdate(){
+    talk.text="";
+    block.x-=5;
+    block2.x-=5;
+    block3.x-=5;
+    stage.clear();
+    if(block.x>GamePiece.x){
+    turtletime();
+  }
+  if(block2.x>GamePiece.x){
+    turtletime2();
+  }
+  if(block3.x>GamePiece.x){
+    turtletime3();
+  }
+    if(GamePiece.crash(block)){
+      if(block.x<GamePiece.x){
+      if(dist){
+      losinglives();
+      dist=false;
+    }
+  }
+}
+  if(GamePiece.crash(block2)){
+    if(block2.x<GamePiece.x){
+    if(dist2){
+    losinglives();
+    dist2=false;
+  }
+}
+}
+if(GamePiece.crash(block3)){
+  if(dist3){
+  losinglives();
+  dist3=false;
+}
+}
+if(heart3.x==-30){
+  wait(4000);
+  alert("game over");
+}
+bouncingturtles();
+walkAndTalk();
+  function walkAndTalk(){
+  if(block3.x<GamePiece.x&& flyyee){
+    console.log("x");
+      talkingeye.y=GamePiece.y-5;
+      talkingeye.x=GamePiece.x+GamePiece.width;
+      goingtogo=true;
+
+  }
+  if(goingtogo && cancelthis){
+    talk.text="hi kids";
+    talk.x=talkingeye.x-20;
+    talk.y=talkingeye.y-20;
+  }
+  if(stage.key && stage.key==40 && talk.text=="hi kids" || cancelthis2==false){
+    talk.text="you messed with the wrong turtles";
+    cancelthis2=false;
+    counter++;
+  }
+  if(counter>50 && cancelthis2==false){
+    talk.text="watch out";
+flyAway();
+iNeedAnotherAlg();
+flyyee=false;
+if(oneinteration){
+moveDownAbstraction();
+oneinteration=false;
+}
+bossBegin=true;
+  }
+}
+function flyAway(){
+  if(stupidalg){
+  talkingeye.x+=10;
+  talkingeye.y-=10;
+  if(talkingeye.y<300){
+    stupidalg=false;
+  }
+}
+else{
+    talkingeye.x-=10;
+    talkingeye.y-=10;
+  }
+}
+function iNeedAnotherAlg(){
+  if(onelastboo){
+    newchal.text="a new challanger";
+    newchal.x+=10;
+    newchal.y+=10;
+      if(newchal.x==500){
+        newchal.text="get ready";
+        onelastboo=false;
+      }
+    }
+      else{
+        newchal.x+=10;
+        newchal.y-=10;
+}
+}
+    block2.update;
+    if(bossBegin){
+      if(boss.y!=150){
+        boss.y-=50;
+        boss.x-=10;
+        block.x=1400;
+        block2.x=1200;
+        block3.x=900;
+      }
+      if(GamePiece.x<=500){
+    if(block3.x>-20){
+      block.x-=20;
+      block2.x-=20;
+      block3.x-=20;
+    }
+    if(block.x<=-20){
+      block.x=1700;
+      block2.x=1300;
+      block3.x=900;
+    }
+  }
+  else{
+    talk.text="I'm sorry for the violence child, make peace between our people";
+    talk.x=boss.x-100;
+    talk.y=boss.y-20;
+    newcounter++;
+  }
+  if(newcounter>50 && finalboo){
+    talk.text="make peace?";
+    talk.x=400;
+    talk.y=200;
+  }
+    if(stage.key && stage.key==40){
+      finalboo=false;
+      boss.image.src="shockedBoss.jpg";
+      boss.y-=20;
+      boss.x+=2;
+      block.image.src="flippedturtle.jpg";
+      block2.image.src="flippedturtle.jpg";
+      block3.image.src="flippedturtle.jpg";
+    }
+  }
+  if(finalboo==false){
+    moveDownAbstraction();
+    talk.x=300;
+    talk.y=200;
+    talk.text="you win: you kicked all the turtles";
+    platform1.x=0;
+    platform1.y=0;
+  }
+  walkADirection();
+    GamePiece.newPos();
+    GamePiece.speedX = 0;
+    GamePiece.speedY = 0;
+    updatePieces();
+    // console.log(GamePiece.y);
+
+    // GamePiece.update();
+    // block.update();
+    //thread.sleep
+  }
+  platform1.update();
+</script>
+</body>
+</html>
